@@ -1,0 +1,1037 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Runway — Shopify Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* ── RESET ── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+/* ── POLARIS TOKENS ── */
+:root{
+  --bg:#F6F6F7;
+  --surface:#FFFFFF;
+  --primary:#008060;
+  --primary-hov:#006B50;
+  --text:#303030;
+  --text-sub:#6D7175;
+  --border:#E1E3E5;
+  --border-strong:#C9CCCF;
+  --nav-bg:#1A1A1A;
+  --nav-w:232px;
+  --topbar-h:56px;
+  --font:'Inter',-apple-system,sans-serif;
+  --r:8px;
+  --shadow:0 0 0 1px rgba(63,63,68,.05),0 1px 3px rgba(63,63,68,.15);
+  --shadow-md:0 4px 16px rgba(0,0,0,.12);
+}
+
+/* ── LAYOUT ── */
+html,body{height:100%;overflow:hidden}
+body{font-family:var(--font);font-size:14px;color:var(--text);background:var(--nav-bg)}
+.shell{display:flex;height:100vh}
+
+/* NAV */
+.nav{width:var(--nav-w);background:var(--nav-bg);display:flex;flex-direction:column;flex-shrink:0;overflow-y:auto}
+.nav-logo{padding:14px 16px;display:flex;align-items:center;gap:10px;border-bottom:1px solid rgba(255,255,255,.07)}
+.logo-mark{width:34px;height:34px;background:#95BF47;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:800;color:#fff;flex-shrink:0}
+.logo-store{color:#E3E3E3;font-size:13px;font-weight:600;line-height:1.2}
+.logo-plan{color:#888;font-size:11px}
+.nav-section{padding:8px 0}
+.nav-group-label{padding:6px 16px 2px;font-size:10.5px;font-weight:600;color:#666;text-transform:uppercase;letter-spacing:.8px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:7px 16px;color:#C0C0C0;font-size:13px;cursor:pointer;transition:background .1s,color .1s;border-radius:0}
+.nav-item:hover{background:rgba(255,255,255,.06);color:#E3E3E3}
+.nav-item.active{background:rgba(255,255,255,.1);color:#fff;font-weight:500}
+.nav-icon{width:18px;text-align:center;font-size:14px;opacity:.75;flex-shrink:0}
+.nav-item.active .nav-icon{opacity:1}
+
+/* MAIN */
+.main{flex:1;display:flex;flex-direction:column;background:var(--bg);overflow:hidden;min-width:0}
+
+/* TOPBAR */
+.topbar{height:var(--topbar-h);background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 24px;gap:12px;flex-shrink:0}
+.topbar-search{flex:1;max-width:380px;height:34px;background:var(--bg);border:1px solid var(--border);border-radius:6px;display:flex;align-items:center;gap:8px;padding:0 12px;color:var(--text-sub);font-size:13px;cursor:text}
+.topbar-right{margin-left:auto;display:flex;align-items:center;gap:10px}
+.topbar-help{font-size:12px;color:var(--text-sub);cursor:pointer;padding:4px 8px;border:1px solid var(--border);border-radius:5px}
+.topbar-avatar{width:30px;height:30px;background:#5C6AC4;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;font-weight:700;cursor:pointer;flex-shrink:0}
+
+/* CONTENT */
+.content{flex:1;overflow-y:auto}
+
+/* ── SCREENS ── */
+.screen{display:none}
+.screen.active{display:block}
+
+/* ── SHARED PAGE ── */
+.page{padding:24px 28px;max-width:1080px}
+.page-title{font-size:20px;font-weight:700;margin-bottom:20px}
+
+/* CARD */
+.card{background:var(--surface);border-radius:var(--r);box-shadow:var(--shadow);overflow:hidden}
+.card-s{padding:18px 20px}
+.card-s+.card-s{border-top:1px solid var(--border)}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;border:none;border-radius:6px;font-family:var(--font);font-weight:600;cursor:pointer;transition:background .15s,transform .1s}
+.btn:active{transform:scale(.98)}
+.btn-green{background:var(--primary);color:#fff;padding:10px 18px;font-size:14px}
+.btn-green:hover{background:var(--primary-hov)}
+.btn-ghost-white{background:transparent;color:rgba(255,255,255,.7);border:1px solid rgba(255,255,255,.2);padding:9px 16px;font-size:13px}
+.btn-ghost-white:hover{border-color:rgba(255,255,255,.4);color:#fff}
+.btn-full{width:100%;padding:13px;font-size:14px;background:var(--primary);color:#fff;border:none;border-radius:6px;font-family:var(--font);font-weight:600;cursor:pointer;transition:background .15s}
+.btn-full:hover{background:var(--primary-hov)}
+.btn-full:disabled{background:var(--border);color:var(--text-sub);cursor:not-allowed}
+.btn-outline-full{width:100%;margin-top:10px;padding:11px;font-size:14px;background:#fff;color:var(--text);border:1.5px solid var(--border);border-radius:6px;font-family:var(--font);font-weight:500;cursor:pointer;transition:border-color .15s}
+.btn-outline-full:hover{border-color:var(--border-strong)}
+.link-green{background:none;border:none;color:var(--primary);font-size:13px;text-decoration:underline;cursor:pointer;font-family:var(--font);padding:0}
+
+/* ── SCREEN: HOME ── */
+.runway-banner{
+  background:linear-gradient(135deg,#002D22 0%,#003D2E 60%,#004D3A 100%);
+  border-radius:var(--r);padding:28px 32px;
+  display:flex;align-items:center;justify-content:space-between;gap:24px;
+  margin-bottom:20px;position:relative;overflow:hidden
+}
+.runway-banner::before{content:'';position:absolute;right:-60px;top:-60px;width:220px;height:220px;border-radius:50%;background:rgba(149,191,71,.06)}
+.runway-banner::after{content:'';position:absolute;right:80px;bottom:-80px;width:180px;height:180px;border-radius:50%;background:rgba(0,128,96,.05)}
+.banner-body{flex:1;position:relative;z-index:1}
+.banner-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(149,191,71,.15);border:1px solid rgba(149,191,71,.25);border-radius:20px;padding:3px 10px;font-size:10.5px;font-weight:700;color:#A8D660;letter-spacing:.6px;text-transform:uppercase;margin-bottom:12px}
+.badge-dot{width:6px;height:6px;border-radius:50%;background:#A8D660;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+.banner-title{font-size:22px;font-weight:800;color:#fff;margin-bottom:8px;line-height:1.3}
+.banner-desc{font-size:13.5px;color:rgba(255,255,255,.6);line-height:1.6;max-width:500px}
+.banner-actions{display:flex;align-items:center;gap:12px;flex-shrink:0;position:relative;z-index:1;flex-wrap:wrap}
+
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
+.stat{background:var(--surface);border-radius:var(--r);box-shadow:var(--shadow);padding:14px 18px}
+.stat-lbl{font-size:11.5px;color:var(--text-sub);margin-bottom:4px}
+.stat-val{font-size:22px;font-weight:700}
+.stat-note{font-size:11px;color:var(--text-sub);margin-top:2px}
+
+.home-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+
+/* ── DIAGNOSIS SCREENS ── */
+.diag{max-width:620px;margin:36px auto;padding:0 24px}
+.progress{display:flex;align-items:center;gap:12px;margin-bottom:32px}
+.progress-track{display:flex;gap:6px;flex:1}
+.progress-step{height:4px;flex:1;border-radius:2px;background:var(--border);transition:background .3s}
+.progress-step.done{background:var(--primary)}
+.progress-step.active{background:var(--primary);opacity:.5}
+.progress-label{font-size:12px;color:var(--text-sub);white-space:nowrap}
+.diag-h{font-size:22px;font-weight:800;margin-bottom:6px}
+.diag-sub{font-size:13.5px;color:var(--text-sub);margin-bottom:28px;line-height:1.5}
+
+.opt-grid{display:grid;gap:12px;margin-bottom:20px}
+.opt-grid-3{grid-template-columns:repeat(3,1fr)}
+.opt-card{background:var(--surface);border:2px solid var(--border);border-radius:var(--r);padding:18px;cursor:pointer;transition:all .15s;text-align:left}
+.opt-card:hover{border-color:#B2D8A8;box-shadow:0 2px 8px rgba(0,128,96,.08)}
+.opt-card.selected{border-color:var(--primary);background:#F0FFF8}
+.opt-icon{font-size:26px;margin-bottom:10px;display:block}
+.opt-title{font-size:14px;font-weight:600;margin-bottom:3px}
+.opt-desc{font-size:12px;color:var(--text-sub);line-height:1.4}
+
+.field-label{font-size:13px;font-weight:500;margin-bottom:6px;display:block}
+.field{width:100%;height:42px;border:1.5px solid var(--border);border-radius:6px;padding:0 14px;font-family:var(--font);font-size:14px;color:var(--text);outline:none;transition:border-color .15s,box-shadow .15s}
+.field:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(0,128,96,.08)}
+.field-hint{font-size:12px;color:var(--text-sub);margin-top:6px}
+
+.sub-qs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:16px 0 20px;animation:fadeUp .2s ease}
+@keyframes fadeUp{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+.sub-q-label{font-size:13px;font-weight:500;color:var(--text);margin-bottom:8px}
+.sub-q{background:var(--surface);border:1.5px solid var(--border);border-radius:6px;padding:10px 14px;cursor:pointer;font-size:13px;transition:all .15s;display:flex;align-items:center;gap:8px}
+.sub-q:hover{border-color:#B2D8A8}
+.sub-q.selected{border-color:var(--primary);background:#F0FFF8;color:var(--primary);font-weight:600}
+
+/* ── SCREEN: LOADING ── */
+.loading-wrap{display:flex;flex-direction:column;align-items:center;justify-content:center;height:70vh;gap:18px;text-align:center}
+.spinner{width:44px;height:44px;border:3px solid var(--border);border-top-color:var(--primary);border-radius:50%;animation:spin .75s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-h{font-size:16px;font-weight:600}
+.loading-sub{font-size:13px;color:var(--text-sub)}
+
+/* ── SCREEN: PLAN ── */
+.plan-shell{display:grid;grid-template-columns:1fr 308px;gap:20px;padding:24px 28px;max-width:1060px}
+.plan-hd{margin-bottom:18px}
+.plan-title{font-size:20px;font-weight:800;margin-bottom:4px}
+.plan-sub{font-size:13px;color:var(--text-sub)}
+.demo-hint{background:#F0FFF8;border:1px solid #AEE9D1;border-radius:6px;padding:10px 14px;display:flex;gap:8px;align-items:flex-start;margin-bottom:16px;font-size:12px;color:#005E47;line-height:1.5}
+
+.day-list{display:flex;flex-direction:column;gap:10px}
+.day-card{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r);overflow:hidden;transition:border-color .2s,opacity .2s}
+.day-card.active-day{border-color:var(--primary);box-shadow:0 2px 8px rgba(0,128,96,.1)}
+.day-card.done-day{opacity:.55}
+.day-card.locked-day{opacity:.35;pointer-events:none}
+.day-hd{display:flex;align-items:center;gap:12px;padding:14px 18px;cursor:pointer}
+.day-num{width:30px;height:30px;border-radius:50%;background:var(--bg);border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--text-sub);flex-shrink:0;transition:all .2s}
+.day-card.active-day .day-num{background:var(--primary);border-color:var(--primary);color:#fff}
+.day-card.done-day .day-num{background:#AEE9D1;border-color:#AEE9D1;color:#006B50}
+.day-info{flex:1;min-width:0}
+.day-lbl{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--text-sub);margin-bottom:1px}
+.day-card.active-day .day-lbl{color:var(--primary)}
+.day-action-title{font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.day-tag{font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;flex-shrink:0;letter-spacing:.3px}
+.day-body{padding:0 18px 18px 60px}
+.day-why{font-size:13px;color:var(--text-sub);line-height:1.7;margin-bottom:14px}
+.day-ctas{display:flex;gap:8px;flex-wrap:wrap}
+.btn-action{background:var(--primary);color:#fff;border:none;border-radius:5px;padding:8px 14px;font-size:12.5px;font-weight:600;cursor:pointer;font-family:var(--font);transition:background .15s}
+.btn-action:hover{background:var(--primary-hov)}
+.btn-mark{background:#fff;color:var(--text);border:1.5px solid var(--border);border-radius:5px;padding:7px 13px;font-size:12.5px;font-weight:500;cursor:pointer;font-family:var(--font);transition:all .15s}
+.btn-mark:hover{border-color:var(--primary);color:var(--primary)}
+
+/* SIDEBAR */
+.sidebar{display:flex;flex-direction:column;gap:12px;position:sticky;top:24px}
+.sb-card{background:var(--surface);border-radius:var(--r);box-shadow:var(--shadow);overflow:hidden}
+.sb-hd{padding:12px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.sb-title{font-size:13px;font-weight:600}
+.sb-badge{font-size:10px;font-weight:700;background:#AEE9D1;color:#006B50;padding:2px 8px;border-radius:20px}
+.sb-body{padding:10px 16px}
+.metric{display:flex;align-items:center;justify-content:space-between;padding:8px 0}
+.metric+.metric{border-top:1px solid #F3F3F3}
+.metric-name{font-size:12.5px;color:var(--text-sub)}
+.metric-val{font-size:17px;font-weight:800;color:var(--text)}
+.metric-val.zero{color:#C9CCCF;font-weight:600}
+.metric-val.sale{color:var(--primary)}
+.watch-row{display:flex;align-items:center;gap:10px;padding:12px 16px;border-top:1px solid var(--border)}
+.watch-dot{width:9px;height:9px;border-radius:50%;background:#AEE9D1;border:2px solid #008060;flex-shrink:0;animation:pulse 1.5s infinite}
+.watch-txt{font-size:11.5px;color:var(--text-sub);line-height:1.4}
+.btn-simulate{width:100%;background:#fff;border:1.5px solid var(--primary);color:var(--primary);border-radius:6px;padding:9px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font);transition:background .15s;margin-top:8px}
+.btn-simulate:hover{background:#F0FFF8}
+.tools-list{display:flex;flex-direction:column;gap:6px;padding:12px 16px}
+.tool-row{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--text-sub)}
+.tool-check{color:var(--primary);font-size:13px;font-weight:700}
+
+/* ── SCREEN: CELEBRATION ── */
+#screen-celebration{position:fixed;inset:0;z-index:100;background:rgba(0,0,0,.8);display:none;align-items:center;justify-content:center}
+#screen-celebration.active{display:flex}
+#confetti-canvas{position:fixed;inset:0;pointer-events:none;z-index:99;display:none}
+.celeb-card{background:#fff;border-radius:16px;padding:44px 40px;text-align:center;max-width:460px;width:90%;position:relative;z-index:101;animation:popIn .4s cubic-bezier(.34,1.56,.64,1)}
+@keyframes popIn{from{transform:scale(.8);opacity:0}to{transform:scale(1);opacity:1}}
+.celeb-emoji{font-size:54px;margin-bottom:14px}
+.celeb-h{font-size:30px;font-weight:800;margin-bottom:6px}
+.celeb-sub{font-size:14px;color:var(--text-sub);margin-bottom:24px;line-height:1.6}
+.celeb-order{background:var(--bg);border-radius:8px;padding:16px;margin-bottom:24px;text-align:left}
+.order-lbl{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--text-sub);margin-bottom:10px}
+.order-row{display:flex;justify-content:space-between;font-size:13.5px;margin-bottom:5px}
+.order-row:last-child{margin-bottom:0}
+.btn-celeb{width:100%;background:var(--primary);color:#fff;border:none;border-radius:8px;padding:14px;font-size:15px;font-weight:700;cursor:pointer;font-family:var(--font);transition:background .15s}
+.btn-celeb:hover{background:var(--primary-hov)}
+
+/* ── SCREEN: DAY 8 ── */
+.day8-wrap{padding:36px 28px;max-width:720px}
+.tag-pill{display:inline-flex;align-items:center;gap:5px;border-radius:20px;padding:3px 12px;font-size:10.5px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;margin-bottom:14px}
+.tag-amber{background:#FFF4CC;border:1px solid #FFD79D;color:#92400E}
+.tag-blue{background:#E3F1FF;border:1px solid #B4D3F5;color:#084E8A}
+.day8-h{font-size:22px;font-weight:800;margin-bottom:8px}
+.day8-sub{font-size:14px;color:var(--text-sub);margin-bottom:28px;line-height:1.6;max-width:580px}
+.data-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px}
+.data-card{background:var(--surface);border-radius:var(--r);box-shadow:var(--shadow);padding:18px;text-align:center}
+.data-num{font-size:34px;font-weight:800}
+.data-lbl{font-size:12px;color:var(--text-sub);margin-top:3px}
+.gap-box{background:#FFF9E6;border:1px solid #FFD79D;border-radius:var(--r);padding:16px 20px;margin-bottom:24px}
+.gap-h{font-size:13px;font-weight:700;color:#92400E;margin-bottom:5px}
+.gap-body{font-size:13.5px;color:#7C3D12;line-height:1.6}
+.btn-wave2{background:var(--primary);color:#fff;border:none;border-radius:6px;padding:12px 24px;font-size:14px;font-weight:700;cursor:pointer;font-family:var(--font);transition:background .15s}
+.btn-wave2:hover{background:var(--primary-hov)}
+.day8-footnote{font-size:12.5px;color:var(--text-sub);margin-top:14px;font-style:italic}
+
+/* ── SCREEN: WAVE 2 ── */
+.w2-hd{margin-bottom:16px}
+.baseline-box{background:#FFF9E6;border:1px solid #FFD79D;border-radius:var(--r);padding:16px 20px;margin-bottom:18px}
+.baseline-lbl{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:#92400E;margin-bottom:12px}
+.baseline-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:10px}
+.baseline-stat{text-align:center}
+.baseline-num{font-size:22px;font-weight:800;color:#7C3D12}
+.baseline-desc{font-size:11px;color:#92400E;margin-top:2px}
+.baseline-insight{font-size:12.5px;color:#7C3D12;font-style:italic;border-top:1px solid #FFD79D;padding-top:10px;line-height:1.5}
+.sidekick-box{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r);padding:20px;margin-top:16px;display:flex;gap:16px;align-items:flex-start}
+.sidekick-icon{width:36px;height:36px;background:#F0F4FF;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;margin-top:2px}
+.sidekick-h{font-size:13px;font-weight:700;margin-bottom:5px}
+.sidekick-sub{font-size:12.5px;color:var(--text-sub);line-height:1.5;margin-bottom:10px}
+.btn-sidekick{background:#fff;border:1.5px solid var(--border);color:var(--text);border-radius:5px;padding:7px 14px;font-size:12.5px;font-weight:600;cursor:pointer;font-family:var(--font);transition:all .15s}
+.btn-sidekick:hover{border-color:var(--primary);color:var(--primary)}
+.w2-baseline-sb .sb-title{color:#92400E}
+
+/* ── SCREEN: RETURNING ── */
+.ret-wrap{padding:28px}
+.ret-header{max-width:580px;margin-bottom:24px}
+.ret-h{font-size:22px;font-weight:800;margin:12px 0 6px;line-height:1.3}
+.ret-sub{font-size:14px;color:var(--text-sub);line-height:1.6}
+.asset-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:20px}
+.asset-card{background:var(--surface);border-radius:var(--r);box-shadow:var(--shadow);padding:20px}
+.asset-num{font-size:30px;font-weight:800;color:var(--primary)}
+.asset-desc{font-size:12px;color:var(--text-sub);margin:3px 0 10px}
+.asset-action{font-size:13px;color:var(--text);line-height:1.4;margin-bottom:12px}
+.btn-asset{background:#fff;border:1.5px solid var(--primary);color:var(--primary);border-radius:5px;padding:7px 12px;font-size:12.5px;font-weight:600;cursor:pointer;font-family:var(--font);transition:background .15s}
+.btn-asset:hover{background:#F0FFF8}
+.ret-explainer{background:var(--surface);border-radius:var(--r);box-shadow:var(--shadow);padding:20px;max-width:860px}
+.ret-exp-h{font-size:13px;font-weight:600;margin-bottom:6px}
+.ret-exp-body{font-size:13px;color:var(--text-sub);line-height:1.6}
+
+/* ── NEW ADDITIONS ── */
+.nav-new{background:#008060;color:#fff;font-size:9px;font-weight:800;padding:2px 5px;border-radius:3px;letter-spacing:.5px;text-transform:uppercase;margin-left:auto}
+.home-greeting{margin-bottom:18px}
+.greeting-h{font-size:22px;font-weight:800;margin-bottom:3px}
+.greeting-sub{font-size:13.5px;color:var(--text-sub)}
+.quick-actions{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.quick-action{background:var(--bg);border:1.5px solid var(--border);border-radius:6px;padding:12px 16px;font-size:13px;font-weight:500;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:8px}
+.quick-action:hover{border-color:var(--primary);color:var(--primary);background:#F0FFF8}
+.opt-grid-2{grid-template-columns:repeat(2,1fr)}
+.scratch-tip{background:#F0FFF8;border:1px solid #AEE9D1;border-radius:6px;padding:14px 16px;display:flex;gap:10px;align-items:flex-start;font-size:13px;color:#005E47;line-height:1.5;margin-bottom:4px;animation:fadeUp .2s ease}
+.scratch-tip strong{color:#004D3A}
+.not-zero-box{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r);padding:16px 20px;margin-bottom:20px;display:flex;gap:14px;align-items:flex-start}
+.not-zero-icon{width:38px;height:38px;background:#F0FFF8;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.not-zero-h{font-size:14px;font-weight:700;margin-bottom:4px}
+.not-zero-sub{font-size:13px;color:var(--text-sub);line-height:1.5}
+.day-time{font-size:11.5px;color:var(--text-sub);margin-top:10px;display:flex;align-items:center;gap:5px}
+.day-time-dot{width:3px;height:3px;border-radius:50%;background:var(--border-strong);display:inline-block}
+.examples-row{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.example-chip{background:#F0FFF8;border:1px solid #AEE9D1;border-radius:20px;padding:3px 10px;font-size:12px;color:#005E47;cursor:pointer;transition:background .15s}
+.example-chip:hover{background:#D6F5E8}
+</style>
+</head>
+<body>
+<div class="shell">
+
+<!-- ═══ NAV ═══ -->
+<nav class="nav">
+  <div class="nav-logo">
+    <div class="logo-mark">S</div>
+    <div>
+      <div class="logo-store">Meadow &amp; Co.</div>
+      <div class="logo-plan">Basic Shopify</div>
+    </div>
+  </div>
+  <div class="nav-section">
+    <div class="nav-item active" onclick="goHome()">
+      <span class="nav-icon">⌂</span> Home
+    </div>
+    <div class="nav-item" onclick="show('s-q1')" style="color:#A8D660">
+      <span class="nav-icon">⚡</span> Runway <span class="nav-new">NEW</span>
+    </div>
+    <div class="nav-item"><span class="nav-icon">≡</span> Orders</div>
+    <div class="nav-item"><span class="nav-icon">▣</span> Products</div>
+    <div class="nav-item"><span class="nav-icon">♙</span> Customers</div>
+    <div class="nav-item"><span class="nav-icon">◧</span> Content</div>
+  </div>
+  <div class="nav-section">
+    <div class="nav-group-label">Sales channels</div>
+    <div class="nav-item"><span class="nav-icon">◈</span> Online Store</div>
+    <div class="nav-item"><span class="nav-icon">⬡</span> Shop</div>
+  </div>
+  <div class="nav-section">
+    <div class="nav-group-label">Apps</div>
+    <div class="nav-item"><span class="nav-icon">◉</span> Analytics</div>
+    <div class="nav-item"><span class="nav-icon">⚐</span> Marketing</div>
+    <div class="nav-item"><span class="nav-icon">◈</span> Discounts</div>
+  </div>
+</nav>
+
+<!-- ═══ MAIN ═══ -->
+<div class="main">
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div class="topbar-search">🔍&nbsp; Search Shopify</div>
+    <div class="topbar-right">
+      <div class="topbar-help">Help</div>
+      <div class="topbar-avatar" title="Dimeji O.">DO</div>
+    </div>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="content">
+
+    <!-- ══ HOME ══ -->
+    <div id="s-home" class="screen active">
+      <div class="page">
+        <div class="home-greeting">
+          <h1 class="greeting-h">Good morning, Oladimeji 👋</h1>
+          <p class="greeting-sub">Your store is live. Here's where things stand today.</p>
+        </div>
+
+        <!-- Runway Banner -->
+        <div class="runway-banner">
+          <div class="banner-body">
+            <div class="banner-badge"><span class="badge-dot"></span> Just activated</div>
+            <h2 class="banner-title">You're live. Now let's get your first sale.</h2>
+            <p class="banner-desc">Runway is your personalized 7-day plan — built entirely from tools already inside your Shopify account. No guesswork. No new apps.</p>
+          </div>
+          <div class="banner-actions">
+            <button class="btn btn-green" onclick="show('s-q1')">Start Runway →</button>
+            <button class="btn btn-ghost-white" onclick="show('s-returning')">Already have customers?</button>
+          </div>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats-row">
+          <div class="stat">
+            <div class="stat-lbl">Total sales</div>
+            <div class="stat-val">$0</div>
+            <div class="stat-note">Store launched 2 days ago</div>
+          </div>
+          <div class="stat">
+            <div class="stat-lbl">Sessions today</div>
+            <div class="stat-val">3</div>
+            <div class="stat-note">↑ 3 from yesterday</div>
+          </div>
+          <div class="stat">
+            <div class="stat-lbl">Products</div>
+            <div class="stat-val">1</div>
+            <div class="stat-note" style="color:var(--primary);cursor:pointer">Meadow Candle — Eucalyptus</div>
+          </div>
+          <div class="stat">
+            <div class="stat-lbl">Visitors today</div>
+            <div class="stat-val">8</div>
+            <div class="stat-note">↑ from 5 yesterday</div>
+          </div>
+        </div>
+
+        <!-- Home grid -->
+        <div class="home-grid">
+          <div class="card">
+            <div class="card-s">
+              <div style="font-size:13px;font-weight:600;margin-bottom:14px">Recent orders</div>
+              <div style="text-align:center;padding:24px 0;color:var(--text-sub);font-size:13px">No orders yet — your first is on the way.</div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-s">
+              <div style="font-size:13px;font-weight:600;margin-bottom:8px">Today's visitors</div>
+              <div style="font-size:30px;font-weight:800;color:var(--text)">8</div>
+              <div style="font-size:12px;color:var(--text-sub);margin-top:4px">Share your store link to bring more traffic</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="card" style="margin-top:14px">
+          <div class="card-s">
+            <div style="font-size:13px;font-weight:600;margin-bottom:12px">Quick actions</div>
+            <div class="quick-actions">
+              <div class="quick-action">📦 Add product</div>
+              <div class="quick-action">✉️ Create email campaign</div>
+              <div class="quick-action" onclick="show('s-q1')">⚡ Start Runway</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ Q1: WHAT ARE YOU SELLING ══ -->
+    <div id="s-q1" class="screen">
+      <div class="diag">
+        <div class="progress">
+          <div class="progress-track">
+            <div class="progress-step done"></div>
+            <div class="progress-step"></div>
+            <div class="progress-step"></div>
+          </div>
+          <span class="progress-label">Step 1 of 3</span>
+        </div>
+        <h2 class="diag-h">What are you selling?</h2>
+        <p class="diag-sub">This shapes every action in your plan — channels, copy, and timing.</p>
+        <div class="opt-grid opt-grid-2">
+          <div class="opt-card" onclick="pickOpt(this,'q1');setTimeout(()=>show('s-q2'),280)">
+            <span class="opt-icon">📦</span>
+            <div class="opt-title">Physical product</div>
+            <div class="opt-desc">Clothing, accessories, food, handmade goods, or anything that ships</div>
+          </div>
+          <div class="opt-card" onclick="pickOpt(this,'q1');setTimeout(()=>show('s-q2'),280)">
+            <span class="opt-icon">💾</span>
+            <div class="opt-title">Digital product or creative work</div>
+            <div class="opt-desc">Books, courses, music, art, downloads, or creative work</div>
+          </div>
+          <div class="opt-card" onclick="pickOpt(this,'q1');setTimeout(()=>show('s-q2'),280)">
+            <span class="opt-icon">🤝</span>
+            <div class="opt-title">Service</div>
+            <div class="opt-desc">Coaching, consulting, freelance, or expertise-based work</div>
+          </div>
+          <div class="opt-card" onclick="pickOpt(this,'q1');setTimeout(()=>show('s-q2'),280)">
+            <span class="opt-icon">🎁</span>
+            <div class="opt-title">Community or cause</div>
+            <div class="opt-desc">Memberships, fundraisers, nonprofits, or mission-driven stores</div>
+          </div>
+        </div>
+        <button class="btn-outline-full" onclick="show('s-home')">← Back</button>
+      </div>
+    </div>
+
+    <!-- ══ Q2: IDEAL CUSTOMER ══ -->
+    <div id="s-q2" class="screen">
+      <div class="diag">
+        <div class="progress">
+          <div class="progress-track">
+            <div class="progress-step done"></div>
+            <div class="progress-step done"></div>
+            <div class="progress-step"></div>
+          </div>
+          <span class="progress-label">Step 2 of 3</span>
+        </div>
+        <h2 class="diag-h">Who's your ideal customer?</h2>
+        <p class="diag-sub">One sentence is enough. This personalizes the channels and language in your plan.</p>
+        <div style="margin-bottom:20px">
+          <label class="field-label">My ideal customer is...</label>
+          <input class="field" id="customer-field" type="text" placeholder="e.g. women in their 30s who love sustainable fashion" oninput="checkQ2()">
+          <div class="field-hint">Be specific. The more clearly you can picture them, the more targeted your Runway plan will be.</div>
+          <div class="examples-row">
+            <div class="example-chip" onclick="fillExample('young professionals aged 25–35 looking for premium gifts')">Young professionals, 25–35</div>
+            <div class="example-chip" onclick="fillExample('first-time moms wanting natural baby products')">First-time moms, natural products</div>
+            <div class="example-chip" onclick="fillExample('home bakers looking for premium ingredients')">Home bakers</div>
+          </div>
+        </div>
+        <button class="btn-full" id="q2-btn" disabled onclick="show('s-q3')">Continue →</button>
+        <button class="btn-outline-full" onclick="show('s-q1')">← Back</button>
+      </div>
+    </div>
+
+    <!-- ══ Q3: EXISTING AUDIENCE ══ -->
+    <div id="s-q3" class="screen">
+      <div class="diag">
+        <div class="progress">
+          <div class="progress-track">
+            <div class="progress-step done"></div>
+            <div class="progress-step done"></div>
+            <div class="progress-step done"></div>
+          </div>
+          <span class="progress-label">Step 3 of 3</span>
+        </div>
+        <h2 class="diag-h">Do you have an existing audience?</h2>
+        <p class="diag-sub">This determines whether your plan starts with traffic-building or audience activation.</p>
+        <div class="opt-grid opt-grid-3" style="margin-bottom:0">
+          <div class="opt-card" id="opt-email" onclick="pickAudience('email')">
+            <span class="opt-icon">✉️</span>
+            <div class="opt-title">Email list</div>
+            <div class="opt-desc">I have subscribers I can reach directly</div>
+          </div>
+          <div class="opt-card" id="opt-social" onclick="pickAudience('social')">
+            <span class="opt-icon">📱</span>
+            <div class="opt-title">Social following</div>
+            <div class="opt-desc">I have followers on Instagram, X, LinkedIn, or elsewhere</div>
+          </div>
+          <div class="opt-card" id="opt-scratch" onclick="pickAudience('scratch')">
+            <span class="opt-icon">🌱</span>
+            <div class="opt-title">Starting from scratch</div>
+            <div class="opt-desc">No existing audience yet — I'm building from zero</div>
+          </div>
+        </div>
+
+        <div id="scratch-callout" style="display:none;margin-top:14px">
+          <div class="scratch-tip">
+            💡 <span><strong>Starting from zero is totally fine.</strong> Runway will activate the Shop channel — giving your store instant visibility to 100M+ buyers already browsing Shopify's Shop app — and guide you through your first organic steps.</span>
+          </div>
+        </div>
+
+        <div style="margin-top:20px">
+          <button class="btn-full" id="q3-btn" disabled onclick="startLoading()">Build my plan →</button>
+          <button class="btn-outline-full" onclick="show('s-q2')">← Back</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ LOADING ══ -->
+    <div id="s-loading" class="screen">
+      <div class="loading-wrap">
+        <div class="spinner"></div>
+        <div class="loading-h">Building your personalized Runway plan...</div>
+        <div class="loading-sub">Reading your store signals and diagnosis answers</div>
+      </div>
+    </div>
+
+    <!-- ══ 7-DAY PLAN ══ -->
+    <div id="s-plan" class="screen">
+      <div class="plan-shell">
+        <!-- Left: days -->
+        <div>
+          <div class="plan-hd">
+            <h1 class="plan-title">Your 7-Day Runway</h1>
+            <p class="plan-sub">One action per day. Each one moves the needle toward your first sale.</p>
+          </div>
+          <div class="demo-hint">
+            💡 <span><strong>Prototype demo:</strong> Click "Mark complete" on Day 1 to unlock Day 2, and so on. Use the sidebar to simulate your first sale.</span>
+          </div>
+          <div class="day-list" id="day-list"></div>
+          <div style="margin-top:18px">
+            <button class="link-green" onclick="show('s-day8')">→ Jump to Day 8 (no-sale scenario)</button>
+          </div>
+        </div>
+        <!-- Right: sidebar -->
+        <div class="sidebar">
+          <div class="sb-card">
+            <div class="sb-hd">
+              <span class="sb-title">Live Momentum</span>
+              <span class="sb-badge">● Watching</span>
+            </div>
+            <div class="sb-body">
+              <div class="metric"><span class="metric-name">Store visits</span><span class="metric-val" id="m-visits">3</span></div>
+              <div class="metric"><span class="metric-name">Product views</span><span class="metric-val" id="m-views">1</span></div>
+              <div class="metric"><span class="metric-name">Add to cart</span><span class="metric-val zero" id="m-cart">0</span></div>
+              <div class="metric"><span class="metric-name">Sales</span><span class="metric-val zero" id="m-sales">$0</span></div>
+            </div>
+            <div class="watch-row">
+              <div class="watch-dot"></div>
+              <div class="watch-txt"><strong>Watching for your first sale.</strong> Updates in real time.</div>
+            </div>
+          </div>
+          <div class="sb-card">
+            <div class="card-s">
+              <div style="font-size:13px;font-weight:600;margin-bottom:4px">Simulate first sale</div>
+              <div style="font-size:12px;color:var(--text-sub);margin-bottom:2px">For demo — see the moment it lands.</div>
+              <button class="btn-simulate" onclick="triggerCelebration()">🎉 Simulate first sale</button>
+            </div>
+          </div>
+          <div class="sb-card">
+            <div class="sb-hd"><span class="sb-title">Tools in your plan</span></div>
+            <div class="tools-list">
+              <div class="tool-row"><span class="tool-check">✓</span> Shop channel</div>
+              <div class="tool-row"><span class="tool-check">✓</span> Shopify Email</div>
+              <div class="tool-row"><span class="tool-check">✓</span> Discount codes</div>
+              <div class="tool-row"><span class="tool-check">✓</span> Shopify Audiences</div>
+              <div class="tool-row"><span class="tool-check">✓</span> Shop Pay</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ DAY 8: NO SALE ══ -->
+    <div id="s-day8" class="screen">
+      <div class="day8-wrap">
+        <div class="tag-pill tag-amber">⚑ Day 8</div>
+        <h2 class="day8-h">7 days in. Here's what your store data shows.</h2>
+        <p class="day8-sub">You're not behind — most merchants in your category see their first sale between day 8 and day 21. Here's what the data tells us about what to focus on next.</p>
+        <div class="data-cards">
+          <div class="data-card">
+            <div class="data-num">47</div>
+            <div class="data-lbl">Store visitors</div>
+          </div>
+          <div class="data-card">
+            <div class="data-num">12</div>
+            <div class="data-lbl">Product views</div>
+          </div>
+          <div class="data-card">
+            <div class="data-num">1</div>
+            <div class="data-lbl">Add-to-cart</div>
+          </div>
+        </div>
+        <div class="gap-box">
+          <div class="gap-h">What your data tells us</div>
+          <div class="gap-body">You have real traffic — 47 people found your store. But only 1 added to cart. This is a <strong>conversion trust gap</strong>, not a traffic problem. Visitors are interested but not convinced. Wave 2 focuses on the trust signals that turn browsers into buyers: stronger product photography, social proof, and a sharper pricing signal.</div>
+        </div>
+        <button class="btn-wave2" onclick="buildWave2UI();show('s-wave2')">Start Wave 2 Plan →</button>
+        <div class="day8-footnote">"Most merchants who get their first sale have been at it for 10–21 days. You're exactly where you should be."</div>
+      </div>
+    </div>
+
+    <!-- ══ WAVE 2 PLAN ══ -->
+    <div id="s-wave2" class="screen">
+      <div class="plan-shell">
+        <!-- Left: Wave 2 days -->
+        <div>
+          <div class="w2-hd">
+            <div class="tag-pill tag-amber" style="margin-bottom:10px">⚑ Wave 2 — Conversion Mode</div>
+            <h1 class="plan-title">Fix the gap. Get the sale.</h1>
+            <p class="plan-sub">Based on 7 days of real store data, every action in Wave 2 targets the exact reason visitors aren't buying.</p>
+          </div>
+          <div class="baseline-box">
+            <div class="baseline-lbl">Wave 1 results — your starting point</div>
+            <div class="baseline-stats">
+              <div class="baseline-stat"><div class="baseline-num">47</div><div class="baseline-desc">visitors</div></div>
+              <div class="baseline-stat"><div class="baseline-num">12</div><div class="baseline-desc">product views</div></div>
+              <div class="baseline-stat"><div class="baseline-num">1</div><div class="baseline-desc">add to cart</div></div>
+              <div class="baseline-stat"><div class="baseline-num">0</div><div class="baseline-desc">sales</div></div>
+            </div>
+            <div class="baseline-insight">The drop from 12 product views to 1 add-to-cart is the gap. Wave 2 closes it.</div>
+          </div>
+          <div class="demo-hint">
+            💡 <span><strong>Prototype demo:</strong> Click "Mark complete" on Day 1 to unlock Day 2. Use the sidebar to simulate your first sale.</span>
+          </div>
+          <div class="day-list" id="w2-day-list"></div>
+          <div class="sidekick-box">
+            <div class="sidekick-icon">✦</div>
+            <div>
+              <div class="sidekick-h">Still stuck after Wave 2? Talk to Sidekick.</div>
+              <div class="sidekick-sub">You've run two structured plans. Sidekick can dig into what's actually happening in your store — product by product, visitor by visitor — and surface answers that a plan can't predict.</div>
+              <button class="btn-sidekick">Open Sidekick →</button>
+            </div>
+          </div>
+        </div>
+        <!-- Right: Wave 2 sidebar -->
+        <div class="sidebar">
+          <div class="sb-card w2-baseline-sb">
+            <div class="sb-hd">
+              <span class="sb-title">Wave 1 baseline</span>
+              <span class="sb-badge" style="background:#FFD79D;color:#92400E">7 days</span>
+            </div>
+            <div class="sb-body">
+              <div class="metric"><span class="metric-name">Total visitors</span><span class="metric-val" style="color:#7C3D12">47</span></div>
+              <div class="metric"><span class="metric-name">Product views</span><span class="metric-val" style="color:#7C3D12">12</span></div>
+              <div class="metric"><span class="metric-name">Add to cart</span><span class="metric-val" style="color:#7C3D12">1</span></div>
+              <div class="metric"><span class="metric-name">Sales</span><span class="metric-val zero">$0</span></div>
+            </div>
+          </div>
+          <div class="sb-card">
+            <div class="sb-hd">
+              <span class="sb-title">Live Momentum</span>
+              <span class="sb-badge">● Watching</span>
+            </div>
+            <div class="sb-body">
+              <div class="metric"><span class="metric-name">Store visits</span><span class="metric-val" id="w2-visits">47</span></div>
+              <div class="metric"><span class="metric-name">Product views</span><span class="metric-val" id="w2-views">12</span></div>
+              <div class="metric"><span class="metric-name">Add to cart</span><span class="metric-val" id="w2-cart">1</span></div>
+              <div class="metric"><span class="metric-name">Sales</span><span class="metric-val zero" id="w2-sales">$0</span></div>
+            </div>
+            <div class="watch-row">
+              <div class="watch-dot"></div>
+              <div class="watch-txt"><strong>Watching for your first sale.</strong> Updates in real time.</div>
+            </div>
+          </div>
+          <div class="sb-card">
+            <div class="card-s">
+              <div style="font-size:13px;font-weight:600;margin-bottom:4px">Simulate first sale</div>
+              <div style="font-size:12px;color:var(--text-sub);margin-bottom:2px">For demo — see the moment it lands.</div>
+              <button class="btn-simulate" onclick="triggerCelebration()">🎉 Simulate first sale</button>
+            </div>
+          </div>
+          <div class="sb-card">
+            <div class="sb-hd"><span class="sb-title">Wave 2 focus areas</span></div>
+            <div class="tools-list">
+              <div class="tool-row"><span class="tool-check">✓</span> Product photography</div>
+              <div class="tool-row"><span class="tool-check">✓</span> Product copy</div>
+              <div class="tool-row"><span class="tool-check">✓</span> Trust signals</div>
+              <div class="tool-row"><span class="tool-check">✓</span> Abandoned cart recovery</div>
+              <div class="tool-row"><span class="tool-check">✓</span> Social proof</div>
+              <div class="tool-row"><span class="tool-check">✓</span> Flash event</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ RETURNING MERCHANT ══ -->
+    <div id="s-returning" class="screen">
+      <div class="ret-wrap">
+        <div class="ret-header">
+          <div class="tag-pill tag-blue">Returning merchant</div>
+          <h2 class="ret-h">You've done this before.<br>Let's use what you already have.</h2>
+          <p class="ret-sub">We noticed your new product has zero sales. Here's what you already have working in your favour.</p>
+        </div>
+        <div class="not-zero-box">
+          <div class="not-zero-icon">📊</div>
+          <div>
+            <div class="not-zero-h">You're not starting from zero.</div>
+            <div class="not-zero-sub">You have an existing customer base, email list, and store traffic. Runway for returning merchants uses what you've already built — your fastest path to your first sale on this product is through people who already trust you.</div>
+          </div>
+        </div>
+        <div class="asset-cards">
+          <div class="asset-card">
+            <div class="asset-num">248</div>
+            <div class="asset-desc">past customers</div>
+            <div class="asset-action">People who already trust you — they should hear about this first.</div>
+            <button class="btn-asset">Send first-look email →</button>
+          </div>
+          <div class="asset-card">
+            <div class="asset-num">1,240</div>
+            <div class="asset-desc">email subscribers</div>
+            <div class="asset-action">A launch announcement sequence via Shopify Email — already set up for you.</div>
+            <button class="btn-asset">Set up sequence →</button>
+          </div>
+          <div class="asset-card">
+            <div class="asset-num">3.2k</div>
+            <div class="asset-desc">monthly store visitors</div>
+            <div class="asset-action">Add the new product to your homepage banner for 48 hours.</div>
+            <button class="btn-asset">Update homepage →</button>
+          </div>
+        </div>
+        <div class="ret-explainer">
+          <div class="ret-exp-h">Why this is different from your first launch</div>
+          <div class="ret-exp-body">First-time Runway builds from scratch — traffic, trust, channels. Returning merchant Runway skips all of that. You already have the assets. This plan is about activating them for your new product, not rebuilding what you've already earned.</div>
+        </div>
+        <div style="margin-top:18px">
+          <button class="link-green" onclick="goHome()">← Back to home</button>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</div><!-- /main -->
+</div><!-- /shell -->
+
+<!-- CELEBRATION (fixed overlay) -->
+<canvas id="confetti-canvas"></canvas>
+<div id="screen-celebration" class="screen">
+  <div class="celeb-card">
+    <div class="celeb-emoji">🎉</div>
+    <h2 class="celeb-h">You did it.</h2>
+    <p class="celeb-sub">Your first sale just landed. This is the moment every Shopify merchant remembers.</p>
+    <div class="celeb-order">
+      <div class="order-lbl">First order</div>
+      <div class="order-row"><span>Product</span><strong>Meadow Candle — Eucalyptus</strong></div>
+      <div class="order-row"><span>Amount</span><strong>$34.00</strong></div>
+      <div class="order-row"><span>Channel</span><strong>Shop</strong></div>
+      <div class="order-row"><span>Customer</span><strong>New customer ✦</strong></div>
+    </div>
+    <button class="btn-celeb" onclick="closeCelebration()">What's next — grow your store →</button>
+  </div>
+</div>
+
+<script>
+/* ── NAVIGATION ── */
+function show(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelector('.content').scrollTop = 0;
+}
+function goHome() {
+  show('s-home');
+  document.querySelectorAll('.nav-item').forEach((n,i) => n.classList.toggle('active', i===0));
+}
+
+/* ── OPTION SELECTION ── */
+function pickOpt(el, group) {
+  el.closest('.opt-grid').querySelectorAll('.opt-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+}
+
+/* ── Q2 VALIDATE ── */
+function checkQ2() {
+  const v = document.getElementById('customer-field').value.trim();
+  document.getElementById('q2-btn').disabled = v.length < 3;
+}
+
+/* ── AUDIENCE SELECTION ── */
+function pickAudience(type) {
+  ['email','social','scratch'].forEach(t => document.getElementById('opt-'+t).classList.remove('selected'));
+  document.getElementById('opt-'+type).classList.add('selected');
+  document.getElementById('scratch-callout').style.display = type === 'scratch' ? 'block' : 'none';
+  document.getElementById('q3-btn').disabled = false;
+}
+
+/* ── Q2 EXAMPLE CHIPS ── */
+function fillExample(text) {
+  const f = document.getElementById('customer-field');
+  f.value = text;
+  f.focus();
+  checkQ2();
+}
+
+/* ── LOADING & PLAN ── */
+function startLoading() {
+  show('s-loading');
+  buildPlanUI();
+  setTimeout(() => show('s-plan'), 2600);
+}
+
+/* ── PLAN DATA ── */
+const DAYS = [
+  { action:'Activate the Shop channel', tag:'Traffic', tagC:{bg:'#E3F1FF',c:'#084E8A'}, time:'5 min',
+    why:'The Shop app has over 100 million active buyers browsing stores like yours. Activating it takes under 5 minutes and puts your products in front of buyers who are already looking — with zero ad spend required.', cta:'Go to Shop channel' },
+  { action:'Create your launch discount code', tag:'Conversion', tagC:{bg:'#F0FFF8',c:'#006B50'}, time:'5 min',
+    why:'A launch discount removes the hesitation that stops first-time buyers. Even 10% off can be the nudge that converts a browser into a customer. Share it everywhere — your social bio, your email signature, your story.', cta:'Create discount code' },
+  { action:'Send a launch email via Shopify Email', tag:'Outreach', tagC:{bg:'#F5F0FF',c:'#4B1D96'}, time:'20 min',
+    why:'An authentic, personal launch email to your contacts outperforms most ads at this stage. Tell them what you built and why it matters. This takes 20 minutes and costs nothing with Shopify Email.', cta:'Open Shopify Email' },
+  { action:'Review your checkout with Shop Pay enabled', tag:'Conversion', tagC:{bg:'#F0FFF8',c:'#006B50'}, time:'10 min',
+    why:'Checkout friction is the most common reason browsers don\'t buy. Shop Pay removes it entirely — buyers complete purchases in seconds with saved info. One change, potentially double the checkout completion rate.', cta:'Review checkout' },
+  { action:'Share your store story across your channels', tag:'Traffic', tagC:{bg:'#E3F1FF',c:'#084E8A'}, time:'15 min',
+    why:'People who already know you are your best first customers. A genuine post — with the story behind what you\'re building — outperforms any ad campaign at this stage. Share it on every platform you have.', cta:'View marketing tools' },
+  { action:'Set up a customer review request', tag:'Trust', tagC:{bg:'#FFF9E6',c:'#92400E'}, time:'5 min',
+    why:'Social proof is the #1 trust signal for first-time buyers. Setting up the review request now means the moment your first sale lands, you\'re already collecting feedback that converts the next buyer.', cta:'Manage product page' },
+  { action:'Set up Shopify Audiences for paid reach', tag:'Scale', tagC:{bg:'#FFF0F0',c:'#8B0000'}, time:'15 min',
+    why:'After 6 days of organic momentum, Day 7 is about amplification. Shopify Audiences uses your store data to find buyers across Meta and Google who look exactly like your ideal customer.', cta:'Set up Audiences' }
+];
+
+let done = new Set();
+function buildPlanUI() {
+  done = new Set();
+  const list = document.getElementById('day-list');
+  list.innerHTML = '';
+  DAYS.forEach((d, i) => {
+    const el = document.createElement('div');
+    el.id = 'dc-'+i;
+    el.className = 'day-card ' + (i===0 ? 'active-day' : 'locked-day');
+    el.innerHTML = `
+      <div class="day-hd" onclick="toggleBody(${i})">
+        <div class="day-num" id="dn-${i}">${i+1}</div>
+        <div class="day-info">
+          <div class="day-lbl">Day ${i+1}</div>
+          <div class="day-action-title">${d.action}</div>
+        </div>
+        <span class="day-tag" style="background:${d.tagC.bg};color:${d.tagC.c}">${d.tag}</span>
+      </div>
+      <div class="day-body" id="db-${i}" style="${i===0?'':'display:none'}">
+        <div class="day-why">${d.why}</div>
+        <div class="day-ctas">
+          <button class="btn-action">↗ ${d.cta}</button>
+          <button class="btn-mark" onclick="completeDay(event,${i})">Mark complete ✓</button>
+        </div>
+        <div class="day-time">⏱ Estimated time: <strong>${d.time}</strong></div>
+      </div>`;
+    list.appendChild(el);
+  });
+}
+function toggleBody(i) {
+  if (document.getElementById('dc-'+i).classList.contains('locked-day')) return;
+  const b = document.getElementById('db-'+i);
+  b.style.display = b.style.display === 'none' ? 'block' : 'none';
+}
+function completeDay(e, i) {
+  e.stopPropagation();
+  done.add(i);
+  const card = document.getElementById('dc-'+i);
+  card.classList.replace('active-day','done-day');
+  document.getElementById('db-'+i).style.display = 'none';
+  document.getElementById('dn-'+i).textContent = '✓';
+  const next = i+1;
+  if (next < DAYS.length) {
+    const nc = document.getElementById('dc-'+next);
+    nc.classList.replace('locked-day','active-day');
+    document.getElementById('db-'+next).style.display = 'block';
+    nc.scrollIntoView({behavior:'smooth',block:'nearest'});
+  }
+  bumpMetrics();
+}
+function bumpMetrics() {
+  const v = document.getElementById('m-visits');
+  const vw = document.getElementById('m-views');
+  const c = document.getElementById('m-cart');
+  v.textContent = +v.textContent + Math.floor(Math.random()*8+3);
+  vw.textContent = +vw.textContent + Math.floor(Math.random()*4+1);
+  const cv = +c.textContent;
+  if (cv < 4) { c.textContent = cv+1; c.classList.remove('zero'); }
+}
+
+/* ── CELEBRATION ── */
+function triggerCelebration() {
+  document.getElementById('screen-celebration').classList.add('active');
+  launchConfetti();
+}
+function closeCelebration() {
+  document.getElementById('screen-celebration').classList.remove('active');
+  stopConfetti();
+  const s = document.getElementById('m-sales');
+  s.textContent = '$34'; s.classList.remove('zero'); s.classList.add('sale');
+}
+
+/* ── CONFETTI ── */
+let raf, parts = [];
+function launchConfetti() {
+  const cv = document.getElementById('confetti-canvas');
+  cv.style.display = 'block';
+  cv.width = innerWidth; cv.height = innerHeight;
+  const ctx = cv.getContext('2d');
+  const cols = ['#008060','#95BF47','#FFD700','#FF6B6B','#4ECDC4','#45B7D1','#F7DC6F','#BB8FCE','#FF8C42'];
+  parts = Array.from({length:180}, () => ({
+    x: Math.random()*cv.width, y: -20,
+    sz: Math.random()*8+4,
+    col: cols[Math.floor(Math.random()*cols.length)],
+    vx: (Math.random()-.5)*7,
+    vy: Math.random()*4+2,
+    rot: Math.random()*360,
+    rs: (Math.random()-.5)*9,
+    rect: Math.random()>.5
+  }));
+  (function draw(){
+    ctx.clearRect(0,0,cv.width,cv.height);
+    parts.forEach(p=>{
+      ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.rot*Math.PI/180);
+      ctx.fillStyle=p.col;
+      if(p.rect){ ctx.fillRect(-p.sz/2,-p.sz/4,p.sz,p.sz/2); }
+      else { ctx.beginPath(); ctx.arc(0,0,p.sz/2,0,Math.PI*2); ctx.fill(); }
+      ctx.restore();
+      p.x+=p.vx; p.y+=p.vy; p.vy+=.12; p.rot+=p.rs;
+    });
+    parts=parts.filter(p=>p.y<cv.height+20);
+    if(parts.length) raf=requestAnimationFrame(draw);
+  })();
+}
+function stopConfetti(){
+  cancelAnimationFrame(raf);
+  const cv=document.getElementById('confetti-canvas');
+  cv.getContext('2d').clearRect(0,0,cv.width,cv.height);
+  cv.style.display='none';
+}
+
+/* ── WAVE 2 DATA ── */
+const WAVE2_DAYS = [
+  { action:'Upgrade your product photography', tag:'Trust', tagC:{bg:'#FFF9E6',c:'#92400E'},
+    why:'You had 12 product views and 1 add-to-cart. That ratio tells us visitors are looking but not convinced enough to act. The most common reason: photos that show the product but not the feeling. Add at least one lifestyle shot — someone using it, wearing it, living with it. Show the outcome, not just the object.', cta:'Edit product photos' },
+  { action:'Rewrite your product description', tag:'Trust', tagC:{bg:'#FFF9E6',c:'#92400E'},
+    why:'People buy outcomes, not features. Answer three questions in your description: What is this exactly? Why does it matter to my specific buyer? What does their life look like after they have it? Keep it short, specific, and human. No bullet-point specs — those are for comparison shoppers, not first-time buyers.', cta:'Edit product page' },
+  { action:'Add a visible guarantee to your product page', tag:'Conversion', tagC:{bg:'#F0FFF8',c:'#006B50'},
+    why:'The biggest silent objection for a first-time buyer is risk. "What if I don\'t like it?" Put your return policy or satisfaction guarantee directly on the product page — not buried in the footer. One line: "Free returns within 30 days, no questions asked." That sentence removes the biggest barrier before it forms.', cta:'Edit product page' },
+  { action:'Build a product FAQ section', tag:'Conversion', tagC:{bg:'#F0FFF8',c:'#006B50'},
+    why:'List the three most common reasons someone might not buy, and answer them directly on the page. Sizing uncertainty? Shipping time? Material questions? Addressing objections proactively is more persuasive than any marketing copy you can write — because it signals that you know your customer.', cta:'Edit product page' },
+  { action:'Enable abandoned cart recovery emails', tag:'Outreach', tagC:{bg:'#F5F0FF',c:'#4B1D96'},
+    why:'One person added to cart and didn\'t buy. That\'s your warmest lead. Shopify\'s built-in abandoned cart email — sent 1 hour after they leave, with your Wave 1 discount code included — is the single highest-converting message you can send. Set it up once and it runs automatically for every future cart.', cta:'Set up abandoned cart' },
+  { action:'Add one piece of social proof', tag:'Trust', tagC:{bg:'#FFF9E6',c:'#92400E'},
+    why:'Even one piece of real human evidence changes how new visitors read everything else on your page. A review, a customer photo, a quote from someone who tried it. If you have no sales yet, a testimonial from a friend or sample recipient counts. Real words from a real person outperform any marketing copy.', cta:'Manage product page' },
+  { action:'Run a 48-hour flash event', tag:'Scale', tagC:{bg:'#FFF0F0',c:'#8B0000'},
+    why:'Your product page is stronger now. Time to create urgency that\'s real. A limited batch, a launch-week bundle, or a 48-hour price — paired with a Shopify Email to your list and posts across every channel you have. Fence-sitters need a deadline. This is how you give them one.', cta:'Create campaign' }
+];
+
+let w2done = new Set();
+function buildWave2UI() {
+  w2done = new Set();
+  const list = document.getElementById('w2-day-list');
+  list.innerHTML = '';
+  WAVE2_DAYS.forEach((d, i) => {
+    const el = document.createElement('div');
+    el.id = 'w2dc-'+i;
+    el.className = 'day-card '+(i===0?'active-day':'locked-day');
+    el.innerHTML = `
+      <div class="day-hd" onclick="toggleW2Body(${i})">
+        <div class="day-num" id="w2dn-${i}">${i+1}</div>
+        <div class="day-info">
+          <div class="day-lbl">Day ${i+1}</div>
+          <div class="day-action-title">${d.action}</div>
+        </div>
+        <span class="day-tag" style="background:${d.tagC.bg};color:${d.tagC.c}">${d.tag}</span>
+      </div>
+      <div class="day-body" id="w2db-${i}" style="${i===0?'':'display:none'}">
+        <div class="day-why">${d.why}</div>
+        <div class="day-ctas">
+          <button class="btn-action">↗ ${d.cta}</button>
+          <button class="btn-mark" onclick="completeW2Day(event,${i})">Mark complete ✓</button>
+        </div>
+      </div>`;
+    list.appendChild(el);
+  });
+}
+function toggleW2Body(i) {
+  if (document.getElementById('w2dc-'+i).classList.contains('locked-day')) return;
+  const b = document.getElementById('w2db-'+i);
+  b.style.display = b.style.display==='none'?'block':'none';
+}
+function completeW2Day(e, i) {
+  e.stopPropagation();
+  w2done.add(i);
+  const card = document.getElementById('w2dc-'+i);
+  card.classList.replace('active-day','done-day');
+  document.getElementById('w2db-'+i).style.display = 'none';
+  document.getElementById('w2dn-'+i).textContent = '✓';
+  const next = i+1;
+  if (next < WAVE2_DAYS.length) {
+    const nc = document.getElementById('w2dc-'+next);
+    nc.classList.replace('locked-day','active-day');
+    document.getElementById('w2db-'+next).style.display = 'block';
+    nc.scrollIntoView({behavior:'smooth',block:'nearest'});
+  }
+  bumpW2Metrics();
+}
+function bumpW2Metrics() {
+  const v = document.getElementById('w2-visits');
+  const vw = document.getElementById('w2-views');
+  const c = document.getElementById('w2-cart');
+  v.textContent = +v.textContent + Math.floor(Math.random()*12+5);
+  vw.textContent = +vw.textContent + Math.floor(Math.random()*7+2);
+  const cv = +c.textContent;
+  if (cv < 10) { c.textContent = cv+Math.floor(Math.random()*2+1); c.classList.remove('zero'); }
+}
+
+/* Init */
+buildPlanUI();
+</script>
+</body>
+</html>
