@@ -1,0 +1,842 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Oladimeji Odewuyi — Product Builder</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ─── RESET ─── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+
+/* ─── TOKENS ─── */
+:root{
+  --bg:#EBEBED;
+  --white:#FFFFFF;
+  --ink:#0F0F0F;
+  --ink-2:#4B5563;
+  --ink-3:#9CA3AF;
+  --green:#008060;
+  --green-lt:#E8F7F1;
+  --border:#E5E7EB;
+  --r:20px;
+  --shadow:0 2px 4px rgba(0,0,0,.04),0 12px 40px rgba(0,0,0,.08);
+  --font:'DM Sans',system-ui,sans-serif;
+  --serif:'Playfair Display',Georgia,serif;
+  --mono:'DM Mono',monospace;
+}
+
+body{
+  font-family:var(--font);
+  background:var(--bg);
+  color:var(--ink);
+  line-height:1.65;
+  -webkit-font-smoothing:antialiased;
+}
+
+/* ─── NAV STRIP ─── */
+.nav-strip{
+  background:#111;
+  border-bottom:1px solid rgba(255,255,255,.07);
+  padding:0 28px;height:40px;
+  display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;z-index:999;font-size:12px;
+  font-family:var(--font);
+}
+.nav-strip a{color:rgba(255,255,255,.45);text-decoration:none;transition:color .15s}
+.nav-strip a:hover{color:white}
+.nav-strip .cur{color:rgba(255,255,255,.8);font-weight:500;pointer-events:none}
+
+/* ─── STACK ─── */
+.stack{
+  max-width:880px;
+  margin:0 auto;
+  padding:44px 20px 120px;
+}
+
+/* ─── PANEL ─── */
+.panel{
+  background:var(--white);
+  border-radius:var(--r);
+  box-shadow:var(--shadow);
+  position:relative;
+  overflow:hidden;
+  margin-top:-24px;
+  /* default stacked z-index */
+}
+.panel:first-child{margin-top:0}
+.panel:nth-child(1){z-index:10}
+.panel:nth-child(2){z-index:20}
+.panel:nth-child(3){z-index:30}
+.panel:nth-child(4){z-index:40}
+.panel:nth-child(5){z-index:50}
+
+.p-inner{padding:60px}
+
+/* ─── SCROLL REVEAL ─── */
+/* Sections start hidden; JS adds .revealed */
+.reveal{
+  opacity:0;
+  transform:translateY(24px);
+  transition:opacity .65s cubic-bezier(.25,.46,.45,.94),
+             transform .65s cubic-bezier(.25,.46,.45,.94);
+}
+.reveal.revealed{
+  opacity:1;
+  transform:translateY(0);
+}
+
+/* Staggered children */
+.stagger > *{
+  opacity:0;
+  transform:translateY(18px);
+  transition:opacity .5s cubic-bezier(.25,.46,.45,.94),
+             transform .5s cubic-bezier(.25,.46,.45,.94);
+}
+.stagger.revealed > *:nth-child(1){opacity:1;transform:none;transition-delay:.05s}
+.stagger.revealed > *:nth-child(2){opacity:1;transform:none;transition-delay:.15s}
+.stagger.revealed > *:nth-child(3){opacity:1;transform:none;transition-delay:.25s}
+.stagger.revealed > *:nth-child(4){opacity:1;transform:none;transition-delay:.35s}
+.stagger.revealed > *:nth-child(5){opacity:1;transform:none;transition-delay:.45s}
+
+/* Hero children stagger */
+.hero-stagger > *{
+  opacity:0;
+  transform:translateY(14px);
+  transition:opacity .55s ease,transform .55s ease;
+}
+.hero-stagger.revealed > *:nth-child(1){opacity:1;transform:none;transition-delay:.0s}
+.hero-stagger.revealed > *:nth-child(2){opacity:1;transform:none;transition-delay:.1s}
+.hero-stagger.revealed > *:nth-child(3){opacity:1;transform:none;transition-delay:.2s}
+.hero-stagger.revealed > *:nth-child(4){opacity:1;transform:none;transition-delay:.3s}
+.hero-stagger.revealed > *:nth-child(5){opacity:1;transform:none;transition-delay:.4s}
+
+/* Hero illustration fade in */
+.hero-illus-wrap{
+  opacity:0;
+  transform:translateX(16px);
+  transition:opacity .8s ease .35s,transform .8s ease .35s;
+}
+.hero-illus-wrap.revealed{
+  opacity:1;transform:translateX(0);
+}
+
+/* Runway section children */
+.rwy-stagger > *{
+  opacity:0;
+  transform:translateY(14px);
+  transition:opacity .5s ease,transform .5s ease;
+}
+.rwy-stagger.revealed > *:nth-child(1){opacity:1;transform:none;transition-delay:.0s}
+.rwy-stagger.revealed > *:nth-child(2){opacity:1;transform:none;transition-delay:.12s}
+.rwy-stagger.revealed > *:nth-child(3){opacity:1;transform:none;transition-delay:.24s}
+.rwy-stagger.revealed > *:nth-child(4){opacity:1;transform:none;transition-delay:.38s}
+
+/* Reduced motion */
+@media(prefers-reduced-motion:reduce){
+  .reveal,.stagger > *,.hero-stagger > *,.hero-illus-wrap,.rwy-stagger > *{
+    opacity:1!important;transform:none!important;transition:none!important;
+  }
+}
+
+/* ─── SECTION LABEL ─── */
+.s-label{
+  font-size:10px;font-weight:700;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--ink-3);
+  margin-bottom:28px;display:flex;align-items:center;gap:12px;
+}
+.s-label::after{content:'';flex:1;height:1px;background:var(--border)}
+
+/* ─── HERO ─── */
+.hero-grid{
+  display:grid;
+  grid-template-columns:1fr 280px;
+  gap:48px;
+  align-items:center;
+}
+.hero-eyebrow{
+  font-size:10px;font-weight:700;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--green);
+  margin-bottom:14px;display:flex;align-items:center;gap:8px;
+}
+.hero-eyebrow::before{
+  content:'';width:6px;height:6px;border-radius:50%;
+  background:var(--green);flex-shrink:0;
+}
+.hero-name{
+  font-family:var(--serif);
+  font-size:clamp(32px,4.5vw,52px);
+  font-weight:900;letter-spacing:-.03em;line-height:1;
+  color:var(--ink);white-space:nowrap;
+  margin-bottom:6px;
+}
+.hero-subtitle{font-size:13px;color:var(--ink-3);margin-bottom:22px}
+
+.hero-bio{
+  font-size:15px;color:var(--ink-2);line-height:1.75;
+  max-width:440px;margin-bottom:30px;
+}
+.hero-bio strong{color:var(--ink);font-weight:600}
+
+.hero-links{display:flex;flex-direction:column;gap:9px}
+.hlink{
+  display:inline-flex;align-items:center;gap:8px;
+  font-size:13px;color:var(--ink-2);text-decoration:none;transition:color .15s;
+}
+.hlink:hover{color:var(--green)}
+.hlink svg{width:14px;height:14px;flex-shrink:0;color:var(--ink-3)}
+.hloc{display:inline-flex;align-items:center;gap:8px;font-size:13px;color:var(--ink-3)}
+.hloc svg{width:14px;height:14px;flex-shrink:0}
+
+/* Hero illustration */
+.hero-illus-wrap{
+  width:280px;height:280px;
+  border-radius:16px;
+  overflow:hidden;
+  background:#F0FAF6;
+  display:flex;align-items:flex-end;justify-content:center;
+}
+.hero-illus-wrap img{
+  width:100%;height:100%;
+  object-fit:cover;
+  object-position:center top;
+}
+
+/* ─── WORKS ─── */
+.works-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:14px;
+}
+.wcard{
+  background:#F8F9FA;
+  border-radius:14px;
+  padding:0 0 20px;
+  border:1px solid var(--border);
+  overflow:hidden;
+  display:flex;flex-direction:column;
+}
+.wcard-thumb{
+  width:100%;height:140px;
+  overflow:hidden;
+  background:#f0f0f0;
+  flex-shrink:0;
+}
+.wcard-thumb img{
+  width:100%;height:100%;
+  object-fit:cover;
+  object-position:center center;
+}
+.wcard-body{padding:18px 20px 0}
+.wtag{
+  font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+  padding:3px 9px;border-radius:100px;display:inline-block;margin-bottom:10px;
+}
+.wcard h3{
+  font-family:var(--serif);font-size:18px;font-weight:700;
+  line-height:1.2;color:var(--ink);margin-bottom:7px;
+}
+.wcard p{font-size:12.5px;color:var(--ink-2);line-height:1.6;margin-bottom:12px}
+.woutcome{
+  font-size:11px;font-family:var(--mono);
+  color:var(--green);background:var(--green-lt);
+  padding:4px 10px;border-radius:6px;display:inline-block;
+}
+
+/* ─── STATS ─── */
+.stats-accent{
+  width:100%;height:160px;
+  border-radius:14px;
+  overflow:hidden;
+  margin-bottom:32px;
+  background:#f0f0f0;
+}
+.stats-accent img{
+  width:100%;height:100%;
+  object-fit:cover;
+  object-position:center 40%;
+}
+.stats-grid{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:14px;
+}
+.scard{
+  background:#F8F9FA;
+  border-radius:14px;
+  padding:28px 12px;
+  border:1px solid var(--border);
+  text-align:center;
+}
+.snum{
+  font-family:var(--serif);
+  font-size:40px;font-weight:900;
+  color:var(--ink);line-height:1;
+  margin-bottom:8px;
+}
+.snum em{font-size:24px;color:var(--green);font-style:normal}
+.sdesc{font-size:11px;color:var(--ink-3);line-height:1.4}
+
+/* ─── OPERATE ─── */
+.operate-heading{
+  font-family:var(--serif);
+  font-size:clamp(22px,3vw,32px);
+  font-weight:700;letter-spacing:-.02em;
+  line-height:1.2;color:var(--ink);
+  margin-top:6px;margin-bottom:36px;
+}
+
+/* Carousel */
+.carousel-wrap{
+  overflow:hidden;
+  margin:0 -60px;
+  padding:4px 0 20px;
+}
+.carousel-track{
+  display:flex;gap:14px;
+  animation:slide-left 28s linear infinite;
+  width:max-content;
+  padding:4px 60px;
+}
+.carousel-track:hover{animation-play-state:paused}
+@keyframes slide-left{
+  0%{transform:translateX(0)}
+  100%{transform:translateX(-50%)}
+}
+@media(prefers-reduced-motion:reduce){
+  .carousel-track{animation:none}
+}
+
+.opcard{
+  width:230px;height:296px;flex-shrink:0;
+  border-radius:18px;padding:26px 22px;
+  display:flex;flex-direction:column;justify-content:space-between;
+  color:white;cursor:default;
+  transition:transform .25s ease;
+}
+.opcard:hover{transform:translateY(-4px)}
+.opcard-icon{
+  width:46px;height:46px;border-radius:13px;
+  background:rgba(255,255,255,.18);
+  display:flex;align-items:center;justify-content:center;
+}
+.opcard-icon svg{
+  width:22px;height:22px;
+  stroke:white;fill:none;
+  stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;
+}
+.opcard-num{
+  font-size:10px;font-weight:700;letter-spacing:.1em;
+  text-transform:uppercase;opacity:.45;margin-bottom:7px;
+}
+.opcard h4{font-size:15px;font-weight:600;line-height:1.3;margin-bottom:7px}
+.opcard p{font-size:12px;opacity:.72;line-height:1.55}
+
+.oc-blue  {background:linear-gradient(135deg,#1E3A8A,#3B82F6)}
+.oc-amber {background:linear-gradient(135deg,#92400E,#F59E0B)}
+.oc-purple{background:linear-gradient(135deg,#5B21B6,#A78BFA)}
+.oc-green {background:linear-gradient(135deg,#064E3B,#10B981)}
+
+/* ─── RUNWAY CALLOUT ─── */
+.runway-panel{background:#0D1F17}
+.runway-inner{
+  padding:60px;
+  display:grid;
+  grid-template-columns:1fr 180px;
+  gap:48px;
+  align-items:center;
+}
+.rwy-kicker{
+  font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;
+  color:#4ADE80;margin-bottom:12px;
+  display:flex;align-items:center;gap:8px;
+}
+.rwy-kicker::before{
+  content:'';width:6px;height:6px;border-radius:50%;
+  background:#4ADE80;flex-shrink:0;
+}
+.rwy-title{
+  font-family:var(--serif);
+  font-size:clamp(26px,3.5vw,42px);
+  font-weight:900;line-height:1.1;
+  color:white;margin-bottom:14px;
+}
+.rwy-desc{
+  font-size:14px;color:rgba(255,255,255,.55);
+  line-height:1.7;max-width:420px;margin-bottom:28px;
+}
+.rwy-btns{display:flex;gap:10px;flex-wrap:wrap}
+.rbtn{
+  display:inline-flex;align-items:center;gap:7px;
+  padding:11px 20px;border-radius:10px;
+  font-size:13px;font-weight:600;text-decoration:none;
+  transition:all .2s;font-family:var(--font);
+}
+.rbtn svg{width:14px;height:14px;flex-shrink:0}
+.rbtn-primary{background:var(--green);color:white}
+.rbtn-primary:hover{background:#006B50}
+.rbtn-secondary{
+  background:rgba(255,255,255,.08);color:white;
+  border:1px solid rgba(255,255,255,.14);
+}
+.rbtn-secondary:hover{background:rgba(255,255,255,.16)}
+
+/* Runway illustration (SVG) */
+.rwy-illus{width:180px;height:180px;flex-shrink:0}
+
+/* ─── FOOTER ─── */
+.footer-strip{
+  max-width:880px;margin:28px auto 0;
+  padding:0 20px;
+  display:flex;align-items:center;justify-content:space-between;
+  flex-wrap:wrap;gap:10px;
+}
+.footer-strip span{font-size:12px;color:var(--ink-3)}
+.footer-strip nav{display:flex;gap:20px}
+.footer-strip a{font-size:12px;color:var(--ink-3);text-decoration:none;transition:color .15s}
+.footer-strip a:hover{color:var(--ink)}
+
+/* ─── RESPONSIVE ─── */
+@media(max-width:720px){
+  .p-inner,.runway-inner{padding:36px 28px}
+  .hero-grid,.runway-inner{grid-template-columns:1fr}
+  .hero-illus-wrap{
+    width:100%;height:220px;
+    order:-1;
+    border-radius:12px;
+  }
+  .hero-name{white-space:normal}
+  .works-grid{grid-template-columns:1fr}
+  .stats-grid{grid-template-columns:repeat(2,1fr)}
+  .carousel-wrap{margin:0 -28px}
+  .carousel-track{padding:4px 28px}
+  .rwy-illus{display:none}
+  .footer-strip{flex-direction:column;align-items:flex-start}
+}
+@media(max-width:420px){
+  .stats-grid{grid-template-columns:1fr 1fr}
+  .rwy-btns{flex-direction:column}
+  .rbtn{justify-content:center}
+}
+</style>
+</head>
+<body>
+
+<!-- ── NAV STRIP ── -->
+<div class="nav-strip">
+  <a href="index.html">← Overview</a>
+  <nav style="display:flex;gap:20px;align-items:center">
+    <a href="prototype.html">Prototype</a>
+    <a href="brief.html">Brief</a>
+    <span class="cur">Resume</span>
+  </nav>
+</div>
+
+<div class="stack">
+
+  <!-- ════════════════════════
+       1. HERO
+  ════════════════════════ -->
+  <section class="panel" id="sec-hero">
+    <div class="p-inner">
+      <div class="hero-grid">
+
+        <!-- Left: text content -->
+        <div class="hero-stagger" id="hero-text">
+          <div class="hero-eyebrow">Product Builder · Author, The Mason's Mind Newsletter</div>
+          <h1 class="hero-name">Oladimeji Odewuyi</h1>
+          <div class="hero-subtitle">APM Candidate · Shopify · May 2026</div>
+          <p class="hero-bio">
+            Six years in the product space. Started as a UX Content Designer,
+            moved into product three years ago. I build apps, tools, and platforms
+            and ship them to real users.
+            <strong>I've never held a PM title at a company.</strong>
+            Shopify is where that changes.
+          </p>
+          <div class="hero-links">
+            <a class="hlink" href="mailto:oladimeji.odewuyi@gmail.com">
+              <svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 7 10 7 10-7"/></svg>
+              oladimeji.odewuyi@gmail.com
+            </a>
+            <a class="hlink" href="https://www.linkedin.com/in/oladimejio" target="_blank">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6zM2 9h4v12H2z"/><circle cx="4" cy="4" r="2"/></svg>
+              linkedin.com/in/oladimejio
+            </a>
+            <a class="hlink" href="https://www.oladimejiodewuyi.com" target="_blank">
+              <svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
+              oladimejiodewuyi.com
+            </a>
+            <div class="hloc">
+              <svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+              Edmonton, Alberta · Remote-ready
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: illustration -->
+        <div class="hero-illus-wrap" id="hero-illus">
+          <img
+            src="illustrations/hero-builder.jpg"
+            alt="Product builder at a computer workstation"
+          >
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════
+       2. SELECTED WORK
+  ════════════════════════ -->
+  <section class="panel" id="sec-work">
+    <div class="p-inner">
+
+      <div class="reveal" id="work-label">
+        <div class="s-label">Selected work</div>
+      </div>
+
+      <div class="works-grid stagger" id="work-cards">
+
+        <!-- Clause -->
+        <div class="wcard">
+          <div class="wcard-thumb">
+            <img
+              src="illustrations/clause-contract.jpg"
+              alt="Illustrated person signing a contract"
+            >
+          </div>
+          <div class="wcard-body">
+            <span class="wtag" style="background:#EFF6FF;color:#1D4ED8">Legal Tech</span>
+            <h3>Clause</h3>
+            <p>An AI tool that helps non-lawyers understand contract language. Built from a real frustration with legal documents designed to confuse.</p>
+            <span class="woutcome">Micro-SaaS shipped</span>
+          </div>
+        </div>
+
+        <!-- OpenHouse -->
+        <div class="wcard">
+          <div class="wcard-thumb">
+            <img
+              src="illustrations/openhouse-community.jpg"
+              alt="Illustrated family representing community and belonging"
+            >
+          </div>
+          <div class="wcard-body">
+            <span class="wtag" style="background:#F0FDFA;color:#0D9488">Faith Tech</span>
+            <h3>OpenHouse</h3>
+            <p>A crowdfunding platform for churches with zero platform fees. Four congregation tiers: Chapel, Parish, Cathedral, and Basilica.</p>
+            <span class="woutcome">Architecture designed end to end</span>
+          </div>
+        </div>
+
+        <!-- Flowers -->
+        <div class="wcard">
+          <div class="wcard-thumb">
+            <img
+              src="illustrations/flowers-compliment.jpg"
+              alt="Illustrated hand giving a compliment or appreciation"
+            >
+          </div>
+          <div class="wcard-body">
+            <span class="wtag" style="background:#FFF1F2;color:#E11D48">Consumer App</span>
+            <h3>Flowers</h3>
+            <p>A gratitude and recognition app built around a retention mechanic. Users send artifacts that create a lasting memory trail between people.</p>
+            <span class="woutcome">138 respondents validated core insight</span>
+          </div>
+        </div>
+
+        <!-- Book One -->
+        <div class="wcard">
+          <div class="wcard-thumb">
+            <img
+              src="illustrations/book-one-book.jpg"
+              alt="Illustrated open book representing writing and publishing"
+            >
+          </div>
+          <div class="wcard-body">
+            <span class="wtag" style="background:#F5F3FF;color:#6D28D9">Creator Economy</span>
+            <h3>Book One</h3>
+            <p>Wrote, designed, and published a book independently. It did not sell. Learning the gap between shipping and distributing changed how I think about commerce.</p>
+            <span class="woutcome">Failure that became a framework</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════
+       3. BY THE NUMBERS
+  ════════════════════════ -->
+  <section class="panel" id="sec-stats">
+    <div class="p-inner">
+
+      <div class="reveal" id="stats-label">
+        <div class="s-label">By the numbers</div>
+      </div>
+
+      <div class="reveal" id="stats-accent">
+        <div class="stats-accent">
+          <img
+            src="illustrations/numbers-working-day.jpg"
+            alt="Illustrated flat working day scene showing productivity and progress"
+          >
+        </div>
+      </div>
+
+      <div class="stats-grid stagger" id="stats-cards">
+        <div class="scard">
+          <div class="snum" data-count="6" data-suffix="+">6<em>+</em></div>
+          <div class="sdesc">Years in the product space</div>
+        </div>
+        <div class="scard">
+          <div class="snum" data-count="8" data-suffix="+">8<em>+</em></div>
+          <div class="sdesc">Products built from zero to live</div>
+        </div>
+        <div class="scard">
+          <div class="snum" data-count="138">138</div>
+          <div class="sdesc">Survey respondents for Flowers validation</div>
+        </div>
+        <div class="scard">
+          <div class="snum">0<em style="font-size:20px">→1</em></div>
+          <div class="sdesc">My favourite problem space</div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ════════════════════════
+       4. HOW I OPERATE
+  ════════════════════════ -->
+  <section class="panel" id="sec-operate">
+    <div class="p-inner" style="padding-bottom:40px">
+
+      <div class="reveal" id="operate-label">
+        <div class="s-label">How I operate</div>
+        <h2 class="operate-heading">
+          Four things that are always<br>true about how I work.
+        </h2>
+      </div>
+
+    </div>
+
+    <!-- Full-bleed carousel -->
+    <div class="reveal" id="operate-carousel">
+      <div class="carousel-wrap">
+        <div class="carousel-track">
+
+          <div class="opcard oc-blue">
+            <div class="opcard-icon">
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+            </div>
+            <div>
+              <div class="opcard-num">01</div>
+              <h4>Start with the person, not the product</h4>
+              <p>Every product I've built started with someone stuck or underserved. I stay in the discomfort until I understand it fully.</p>
+            </div>
+          </div>
+
+          <div class="opcard oc-amber">
+            <div class="opcard-icon">
+              <svg viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+            </div>
+            <div>
+              <div class="opcard-num">02</div>
+              <h4>Ship to learn, not to launch</h4>
+              <p>I don't design in theory. I build to the smallest unit of truth and let real users tell me what's wrong.</p>
+            </div>
+          </div>
+
+          <div class="opcard oc-purple">
+            <div class="opcard-icon">
+              <svg viewBox="0 0 24 24"><path d="M12 2a7 7 0 015.43 11.44L16 15H8l-1.43-1.56A7 7 0 0112 2z"/><path d="M9 18h6M10 21h4"/></svg>
+            </div>
+            <div>
+              <div class="opcard-num">03</div>
+              <h4>AI as a tool, not a trick</h4>
+              <p>I use AI the way a surgeon uses a scalpel. Precisely, in service of the work. Not to generate noise.</p>
+            </div>
+          </div>
+
+          <div class="opcard oc-green">
+            <div class="opcard-icon">
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            </div>
+            <div>
+              <div class="opcard-num">04</div>
+              <h4>Zero to one is the whole job</h4>
+              <p>I operate without a playbook. Fintech, faith-tech, edtech, consumer. Always building toward the first real signal.</p>
+            </div>
+          </div>
+
+          <!-- Duplicates for infinite loop -->
+          <div class="opcard oc-blue">
+            <div class="opcard-icon">
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+            </div>
+            <div>
+              <div class="opcard-num">01</div>
+              <h4>Start with the person, not the product</h4>
+              <p>Every product I've built started with someone stuck or underserved. I stay in the discomfort until I understand it fully.</p>
+            </div>
+          </div>
+          <div class="opcard oc-amber">
+            <div class="opcard-icon">
+              <svg viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+            </div>
+            <div>
+              <div class="opcard-num">02</div>
+              <h4>Ship to learn, not to launch</h4>
+              <p>I don't design in theory. I build to the smallest unit of truth and let real users tell me what's wrong.</p>
+            </div>
+          </div>
+          <div class="opcard oc-purple">
+            <div class="opcard-icon">
+              <svg viewBox="0 0 24 24"><path d="M12 2a7 7 0 015.43 11.44L16 15H8l-1.43-1.56A7 7 0 0112 2z"/><path d="M9 18h6M10 21h4"/></svg>
+            </div>
+            <div>
+              <div class="opcard-num">03</div>
+              <h4>AI as a tool, not a trick</h4>
+              <p>I use AI the way a surgeon uses a scalpel. Precisely, in service of the work. Not to generate noise.</p>
+            </div>
+          </div>
+          <div class="opcard oc-green">
+            <div class="opcard-icon">
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            </div>
+            <div>
+              <div class="opcard-num">04</div>
+              <h4>Zero to one is the whole job</h4>
+              <p>I operate without a playbook. Fintech, faith-tech, edtech, consumer. Always building toward the first real signal.</p>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+    <div style="height:40px"></div>
+  </section>
+
+  <!-- ════════════════════════
+       5. RUNWAY CALLOUT
+  ════════════════════════ -->
+  <section class="panel runway-panel" id="sec-runway">
+    <div class="runway-inner">
+
+      <div class="rwy-stagger" id="runway-content">
+        <div class="rwy-kicker">Built for this application</div>
+        <h2 class="rwy-title">See Runway in action.</h2>
+        <p class="rwy-desc">
+          A fully interactive prototype of Runway inside a simulated Shopify Admin interface.
+          Nine screens. Real flows. Built using Claude Code in a single session.
+        </p>
+        <div class="rwy-btns">
+          <a class="rbtn rbtn-primary" href="prototype.html">
+            <svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2.5" stroke-linecap="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+            Open Prototype
+          </a>
+          <a class="rbtn rbtn-secondary" href="brief.html">
+            <svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+            Read the Brief
+          </a>
+          <a class="rbtn rbtn-secondary" href="index.html">
+            <svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            Overview
+          </a>
+        </div>
+      </div>
+
+      <!-- Runway SVG illustration -->
+      <svg class="rwy-illus" viewBox="0 0 180 180" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="90" cy="90" r="90" fill="rgba(255,255,255,.05)"/>
+        <path d="M90 150 L90 60" stroke="rgba(255,255,255,.1)" stroke-width="4" stroke-linecap="round" stroke-dasharray="8 8"/>
+        <path d="M60 150 L60 90" stroke="rgba(255,255,255,.06)" stroke-width="2" stroke-linecap="round" stroke-dasharray="6 8"/>
+        <path d="M120 150 L120 90" stroke="rgba(255,255,255,.06)" stroke-width="2" stroke-linecap="round" stroke-dasharray="6 8"/>
+        <path d="M90 32 L102 56 L98 56 L98 72 L90 68 L82 72 L82 56 L78 56Z" fill="#4ADE80" opacity=".9"/>
+        <path d="M74 58 L62 66 L74 70Z" fill="#4ADE80" opacity=".45"/>
+        <path d="M106 58 L118 66 L106 70Z" fill="#4ADE80" opacity=".45"/>
+        <circle cx="90" cy="48" r="22" fill="#4ADE80" opacity=".07"/>
+        <path d="M146 42 L148 35 L150 42 L157 44 L150 46 L148 53 L146 46 L139 44Z" fill="#FCD34D" opacity=".65"/>
+        <circle cx="30" cy="58" r="5" fill="#60A5FA" opacity=".45"/>
+        <circle cx="152" cy="88" r="3" fill="#C084FC" opacity=".45"/>
+      </svg>
+
+    </div>
+  </section>
+
+</div><!-- /stack -->
+
+<!-- ── FOOTER ── -->
+<div class="footer-strip">
+  <span>Oladimeji Odewuyi · Shopify APM Application · 2026</span>
+  <nav>
+    <a href="prototype.html">Prototype</a>
+    <a href="brief.html">Brief</a>
+    <a href="https://www.linkedin.com/in/oladimejio" target="_blank">LinkedIn</a>
+    <a href="https://www.oladimejiodewuyi.com" target="_blank">Portfolio</a>
+  </nav>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  /* ── Trigger hero immediately ── */
+  const heroText  = document.getElementById('hero-text');
+  const heroIllus = document.getElementById('hero-illus');
+  if (heroText)  heroText.classList.add('revealed');
+  if (heroIllus) heroIllus.classList.add('revealed');
+
+  /* ── IntersectionObserver for all other reveal targets ── */
+  const targets = [
+    { el: document.getElementById('work-label'),      cls: 'revealed' },
+    { el: document.getElementById('work-cards'),      cls: 'revealed' },
+    { el: document.getElementById('stats-label'),     cls: 'revealed' },
+    { el: document.getElementById('stats-accent'),    cls: 'revealed' },
+    { el: document.getElementById('stats-cards'),     cls: 'revealed' },
+    { el: document.getElementById('operate-label'),   cls: 'revealed' },
+    { el: document.getElementById('operate-carousel'),cls: 'revealed' },
+    { el: document.getElementById('runway-content'),  cls: 'revealed' },
+  ];
+
+  const observer = new IntersectionObserver(function (entries) {
+    entries.forEach(function (entry) {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('revealed');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+
+  targets.forEach(function (t) {
+    if (t.el) observer.observe(t.el);
+  });
+
+  /* ── Subtle number count-up ── */
+  const countEls = document.querySelectorAll('.snum[data-count]');
+  const countObserver = new IntersectionObserver(function (entries) {
+    entries.forEach(function (entry) {
+      if (!entry.isIntersecting) return;
+      const el     = entry.target;
+      const target = parseInt(el.dataset.count, 10);
+      const suffix = el.dataset.suffix || '';
+      const inner  = el.querySelector('em');
+      let current  = 0;
+      const step   = Math.max(1, Math.floor(target / 30));
+      const timer  = setInterval(function () {
+        current = Math.min(current + step, target);
+        el.firstChild.textContent = current;
+        if (current >= target) clearInterval(timer);
+      }, 30);
+      countObserver.unobserve(el);
+    });
+  }, { threshold: 0.5 });
+
+  countEls.forEach(function (el) { countObserver.observe(el); });
+
+})();
+</script>
+</body>
+</html>
